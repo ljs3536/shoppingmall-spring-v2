@@ -1,0 +1,109 @@
+plugins {
+	id 'java'
+	id 'org.springframework.boot' version '3.4.3'
+	id 'io.spring.dependency-management' version '1.1.7'
+}
+
+group = 'com.hertz'
+version = '0.0.1-SNAPSHOT'
+
+java {
+	toolchain {
+		languageVersion = JavaLanguageVersion.of(17)
+	}
+}
+
+configurations {
+	compileOnly {
+		extendsFrom annotationProcessor
+	}
+}
+
+repositories {
+	mavenCentral()
+}
+
+dependencies {
+	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+	implementation 'org.springframework.boot:spring-boot-starter-web'
+	implementation 'org.mariadb.jdbc:mariadb-java-client:3.4.1'
+	implementation 'org.springframework.boot:spring-boot-starter-validation'
+	implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
+	implementation 'org.springframework.boot:spring-boot-starter-security'
+	implementation 'org.thymeleaf.extras:thymeleaf-extras-springsecurity6'
+	implementation 'commons-io:commons-io:2.14.0'
+	implementation 'net.coobird:thumbnailator:0.4.14'
+
+	// queryDSL
+	// 스프링 부트 3.0 이상
+	implementation 'com.querydsl:querydsl-jpa:5.0.0:jakarta'
+	annotationProcessor "com.querydsl:querydsl-apt:5.0.0:jakarta"
+
+	implementation "com.querydsl:querydsl-core"
+	implementation "com.querydsl:querydsl-collections"
+
+	annotationProcessor "jakarta.annotation:jakarta.annotation-api"
+	annotationProcessor "jakarta.persistence:jakarta.persistence-api"
+
+	//WebClient
+	implementation 'org.springframework.boot:spring-boot-starter-webflux'
+
+	//elasticsearch
+	/*implementation 'org.springframework.boot:spring-boot-starter-data-elasticsearch'*/
+    //mongoDB
+    implementation "org.springframework.data:spring-data-mongodb:4.5.0"
+
+	//Lombok
+	compileOnly 'org.projectlombok:lombok'
+	developmentOnly 'org.springframework.boot:spring-boot-devtools'
+	annotationProcessor 'org.projectlombok:lombok'
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
+	//prometheus
+	implementation 'io.micrometer:micrometer-registry-prometheus'
+	implementation 'org.springframework.boot:spring-boot-starter-actuator'
+
+	//kafka
+	implementation 'org.springframework.kafka:spring-kafka'
+	// Kafka 테스트 도구
+	testImplementation 'org.springframework.kafka:spring-kafka-test'
+
+	//jsonObject
+	implementation 'org.json:json:20231013'
+
+	//websocket
+	implementation 'org.springframework.boot:spring-boot-starter-websocket'
+
+	//redis
+	implementation 'org.springframework.session:spring-session-data-redis'
+	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+
+}
+
+tasks.named('test') {
+	useJUnitPlatform()
+}
+
+///// Querydsl 빌드 옵션 (옵셔널)
+def generated = 'src/main/generated'
+
+///// querydsl QClass 파일 생성 위치를 지정
+tasks.withType(JavaCompile) {
+	options.getGeneratedSourceOutputDirectory().set(file(generated))
+}
+
+///// java source set 에 querydsl QClass 위치 추가
+sourceSets {
+	main.java.srcDirs += [ generated ]
+}
+
+///// gradle clean 시에 QClass 디렉토리 삭제
+clean {
+	delete file(generated)
+}
+
+// 테스트 코드를 제외한 빌드 수행
+tasks.withType(Test) {
+	enabled = false
+}

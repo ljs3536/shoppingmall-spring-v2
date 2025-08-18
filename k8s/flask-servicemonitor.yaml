@@ -1,0 +1,17 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: flask-monitor
+  labels:
+    release: prom-stack
+spec:
+  selector:
+    matchLabels:
+      io.kompose.service: flask
+  endpoints:
+    - port: "http-flask"
+      path: /metrics
+      interval: 15s
+  namespaceSelector:
+    matchNames:
+      - default

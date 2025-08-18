@@ -1,0 +1,66 @@
+spring:
+  datasource:
+    platform: mariadb
+    driverClassName: org.mariadb.jdbc.Driver
+    url: jdbc:mariadb://${DB_HOST:localhost}:3306/shoppingmall?serverTimezone=UTC&characterEncoding=UTF-8
+    username: ${DB_USERNAME:mallAdmin}
+    password: ${DB_PASSWORD:qwe123}
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        show_sql: true
+        format_sql: true
+        default_batch_fetch_size: 100
+    open-in-view: true
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 5MB
+      max-request-size: 10MB
+  session:
+    store-type: redis
+    redis:
+      host: my-redis-master  # Helm으로 올렸을 때 서비스 이름 (예: my-redis-master)
+      port: 6379
+  elasticsearch:
+    uris: ${ELASTICSEARCH_URI:http://localhost:9200}
+  kafka:
+    bootstrap-servers: kafka-controller-0.kafka-controller-headless.default.svc.cluster.local:9092,
+                       kafka-controller-1.kafka-controller-headless.default.svc.cluster.local:9092,
+                       kafka-controller-2.kafka-controller-headless.default.svc.cluster.local:9092
+    consumer:
+      group-id: my-consumer-group
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+logging:
+  level:
+    org.hibernate.SQL: INFO
+    org.springframework.security: DEBUG
+    org.springframework.security.authentication: TRACE
+    org.springframework.data.elasticsearch: DEBUG
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  endpoint:
+    prometheus:
+      enabled: true
+  metrics:
+    export:
+      prometheus:
+        enabled: true
+
+file:
+  upload-path: ${FILE_UPLOAD_PATH:/upload/images/}
+  access-url: ${FILE_ACCESS_URL:/images/}
+
+flask:
+  base-url: http://flask:5000

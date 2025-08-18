@@ -1,0 +1,68 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="fragments/header :: header" />
+<body>
+<div th:replace="fragments/bodyHeader :: bodyHeader"/>
+<div class="container">
+  <div>
+    <table class="table table-striped">
+      <thead>
+      <tr>
+        <th>#</th>
+        <th>수령인</th>
+        <th>배송주소</th>
+        <th>총 결제 금액</th>
+        <th></th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr th:each="order : ${orders}">
+        <td>
+          <a th:href="@{/buyer/order/view/{id}(id=${order.id})}" th:text="${order.id}"></a>
+        </td>
+        <td th:text="${order.recipient}"></td>
+        <td th:text="${order.address}"></td>
+        <td th:text="${order.totalPrice}"></td>
+        <td>
+        </td>
+      </tr>
+      </tbody>
+    </table>
+    <div class="pagination">
+      <!-- 첫 번째 페이지 이동 -->
+      <li class="page-item" th:classappend="${orderPage.first} ? 'disabled'">
+        <a class="page-link" th:href="@{/buyer/order/list(page=0, size=${orderPage.size})}">
+          &laquo;&laquo;
+        </a>
+      </li>
+      <!-- 이전 페이지 -->
+      <li class="page-item" th:classappend="${orderPage.first} ? 'disabled'">
+        <a class="page-link" th:href="@{/buyer/order/list(page=${orderPage.number - 1}, size=${orderPage.size})}">
+          &laquo;
+        </a>
+      </li>
+      <!-- 페이지 번호 반복 -->
+      <li class="page-item" th:each="i : ${#numbers.sequence(0, orderPage.totalPages - 1)}" th:classappend="${orderPage.number == i} ? 'active' : ''">
+        <a class="page-link" th:href="@{/buyer/order/list(page=${i}, size=${orderPage.size})}"
+           th:text="${i + 1}">
+        </a>
+      </li>
+      <!-- 다음 페이지 -->
+      <li class="page-item" th:classappend="${orderPage.last} ? 'disabled'">
+        <a class="page-link" th:href="@{/buyer/order/list(page=${orderPage.number + 1}, size=${orderPage.size})}">
+          &raquo;
+        </a>
+      </li>
+      <!-- 마지막 페이지 이동 -->
+      <li class="page-item" th:classappend="${orderPage.last} ? 'disabled'">
+        <a class="page-link" th:href="@{/buyer/order/list(page=${orderPage.totalPages - 1}, size=${orderPage.size})}">
+          &raquo;&raquo;
+        </a>
+      </li>
+    </div>
+  </div>
+</div> <!-- /container -->
+<div th:replace="fragments/footer :: footer"/>
+</body>
+</html>

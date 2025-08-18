@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<div class="header" th:fragment="bodyHeader">
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="/"><h3 class="text-muted">HELLO SHOP</h3></a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+                    aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul sec:authorize="isAuthenticated()" class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/">Home</a>
+                    </li>
+
+                    <!-- 회원 기능 드롭다운 -->
+                    <li sec:authorize="hasRole('ADMIN')" class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="memberDropdown" role="button"
+                           data-bs-toggle="dropdown" aria-expanded="false">
+                            회원 기능
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="memberDropdown">
+                            <li>
+                                <a class="dropdown-item" href="/admin/members">회원 목록</a>
+                            </li>
+                        </ul>
+                    </li>
+
+                    <!-- 상품 기능 드롭다운 -->
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="productDropdown" role="button"
+                           data-bs-toggle="dropdown" aria-expanded="false">
+                            상품 기능
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="productDropdown">
+                            <li sec:authorize="hasRole('ADMIN')">
+                                <a class="dropdown-item" href="/admin/products/categoryList">카테고리 등록</a>
+                            </li>
+                            <li sec:authorize="hasRole('SELLER')">
+                                <a class="dropdown-item" href="/seller/products/new">상품 등록</a>
+                            </li>
+                            <li sec:authorize="hasRole('SELLER')">
+                                <a class="dropdown-item" href="/seller/products/mylist">상품 목록</a>
+                            </li>
+                            <li sec:authorize="hasRole('BUYER')">
+                                <a class="dropdown-item" href="/buyer/products/list">상품 목록</a>
+                            </li>
+                            <li sec:authorize="hasRole('BUYER')">
+                                <a class="dropdown-item" href="/buyer/cart/list">장바구니 목록</a>
+                            </li>
+                        </ul>
+                    </li>
+
+                    <!-- 주문 기능 드롭다운 -->
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="orderDropdown" role="button"
+                           data-bs-toggle="dropdown" aria-expanded="false">
+                            주문 기능
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="orderDropdown">
+                            <li sec:authorize="hasRole('BUYER')">
+                                <a class="dropdown-item" href="/buyer/order/list">주문 목록</a>
+                            </li>
+                            <li sec:authorize="hasRole('SELLER')">
+                                <a class="dropdown-item" href="/seller/order/list">주문 목록</a>
+                            </li>
+                            <li sec:authorize="hasRole('ADMIN')">
+                                <a class="dropdown-item" href="/admin/statistics/info">주문 통계</a>
+                            </li>
+                            <li sec:authorize="hasRole('ADMIN')">
+                                <a class="dropdown-item" href="/admin/statistics/prediction">주문 예측</a>
+                            </li>
+                            <li sec:authorize="hasRole('ADMIN')">
+                                <a class="dropdown-item" href="/admin/models/list">모델 관리</a>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+                <!-- 알림 종 아이콘 및 알림 수 표시 -->
+                <div sec:authorize="isAuthenticated()" class="position-relative me-3" onclick="toggleAlarmPanel()">
+                    <i id="alarmBell" class="bi bi-bell" style="font-size: 1.5rem; cursor: pointer;"></i>
+                    <span id="alarmCount" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                        0
+                    </span>
+                </div>
+                <!-- 알림 패널 -->
+                <div id="alarmPanel" class="position-fixed top-0 end-0 bg-white border shadow" style="width: 300px; height: 100%; z-index: 1050; display: none;">
+                    <div class="p-3 border-bottom d-flex justify-content-between align-items-center">
+                        <strong>알림 목록</strong>
+                        <button class="btn btn-sm btn-outline-secondary" onclick="toggleAlarmPanel()">닫기</button>
+                    </div>
+                    <div id="alarmList" class="p-3 overflow-auto" style="height: calc(100% - 60px);">
+                        <!-- 여기에 알림 항목들이 JavaScript로 렌더링됨 -->
+                    </div>
+                </div>
+                <!-- 로그인 영역 -->
+                <div class="d-flex">
+                    <div sec:authorize="!isAuthenticated()">
+                        <a class="btn btn-dark" href="/members/form">회원 가입</a>
+                    </div>
+                    <div sec:authorize="!isAuthenticated()">
+                        <a class="btn btn-dark" href="/login">로그인</a>
+                    </div>
+                    <div sec:authorize="isAuthenticated()" class="d-flex align-items-center">
+                        <span class="me-2" sec:authentication="name">사용자</span>
+                        <span class="me-3" th:text="${#authentication.principal.nickname}">닉네임</span>
+                        <form th:action="@{/logout}" method="post">
+                            <button class="btn btn-sm btn-dark" type="submit">로그아웃</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+    <script th:inline="javascript">
+
+        let memberId = [[${memberId}]];
+
+        document.addEventListener("DOMContentLoaded", function () {
+<!--            if (memberId !== null) {-->
+<!--                // 초기 알림 불러오기-->
+<!--                const csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute('content');-->
+<!--                const csrfHeader = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');-->
+
+<!--                fetch('/api/alarms', {-->
+<!--                        headers: {-->
+<!--                            'X-Requested-With': 'XMLHttpRequest',-->
+<!--                            [csrfHeader]: csrfToken // 동적으로 CSRF 헤더 키 설정-->
+<!--                        }-->
+<!--                    })-->
+<!--                    .then(response => {-->
+<!--                        if (!response.ok) {-->
+<!--                            throw new Error("Unauthorized or not logged in");-->
+<!--                        }-->
+<!--                        return response.json();-->
+<!--                    })-->
+<!--                    .then(data => {-->
+<!--                        data.forEach(alarm => {-->
+<!--                            addAlarmItem(alarm);-->
+<!--                        });-->
+<!--                        updateAlarmCount(data.length);-->
+<!--                    })-->
+<!--                    .catch(error => console.error("알림 불러오기 실패:", error));-->
+<!--            }-->
+<!--            if (memberId !== null && !window.stompClient) {-->
+<!--                const socket = new SockJS('/ws');-->
+<!--                window.stompClient = Stomp.over(socket);-->
+
+<!--                window.stompClient.connect({}, function () {-->
+<!--                    window.stompClient.subscribe('/topic/notifications/' + memberId, function (notification) {-->
+<!--                        const data = JSON.parse(notification.body);-->
+<!--                        showNotification(data);-->
+<!--                        addAlarmItem(data);-->
+<!--                        updateAlarmCount(1);-->
+<!--                    });-->
+<!--                });-->
+<!--            }-->
+        });
+
+
+
+        function showNotification(data) {
+            alert("🔔 " + data.title + ": " + data.content); // 커스터마이징 가능
+            // TODO: 알림 뱃지 증가, UI 업데이트 등
+        }
+
+        function toggleAlarmPanel() {
+            const panel = document.getElementById("alarmPanel");
+            panel.style.display = (panel.style.display === "none") ? "block" : "none";
+        }
+
+        function addAlarmItem(alarm) {
+            const list = document.getElementById("alarmList");
+            const item = document.createElement("div");
+            item.className = "border-bottom py-2";
+
+            item.innerHTML = `
+                <div><strong>${alarm.title}</strong></div>
+                <div class="text-muted small">${alarm.time}</div>
+                <div class="mt-1">
+                    <button class="btn btn-sm btn-outline-success me-2" onclick="markAsRead(${alarm.id}, this)">읽음</button>
+                    <button class="btn btn-sm btn-outline-danger" onclick="deleteAlarm(${alarm.id}, this)">삭제</button>
+                </div>
+            `;
+
+            list.prepend(item);
+        }
+
+        function updateAlarmCount(diff) {
+            const badge = document.getElementById("alarmCount");
+            let count = parseInt(badge.textContent) || 0;
+            count += diff;
+            badge.textContent = count > 0 ? count : '';
+        }
+
+        function markAsRead(alarmId, btn) {
+            const csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute('content');
+            const csrfHeader = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
+            fetch('/api/alarms/'+alarmId+'/read', {
+                method: "POST",
+                headers: {
+                    'Content-Type': 'application/json',
+                    [csrfHeader]: csrfToken // 동적으로 CSRF 헤더 키 설정
+                }
+            }).then(() => {
+                btn.closest("div.border-bottom").classList.add("text-muted");
+            });
+        }
+
+        function deleteAlarm(alarmId, btn) {
+            const csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute('content');
+            const csrfHeader = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
+            fetch('/api/alarms/'+alarmId, {
+                method: "DELETE",
+                headers: {
+                    'Content-Type': 'application/json',
+                    [csrfHeader]: csrfToken // 동적으로 CSRF 헤더 키 설정
+                }
+            }).then(() => {
+                btn.closest("div.border-bottom").remove();
+                updateAlarmCount(-1);
+            });
+        }
+    </script>
+</div>
+</html>

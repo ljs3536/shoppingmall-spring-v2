@@ -1,0 +1,14 @@
+kraft:
+  enabled: false
+
+zookeeper:
+  enabled: true
+
+listeners:
+  client:
+    protocol: PLAINTEXT
+    port: 9092
+
+advertisedListeners:
+  client:
+    - PLAINTEXT://kafka:9092

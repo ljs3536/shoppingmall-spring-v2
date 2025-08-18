@@ -1,0 +1,55 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments/header :: header">
+    <style>
+        .container {
+            max-width: 560px;
+        }
+        .field-error {
+            border-color: #dc3545;
+            color: #dc3545;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="py-5 text-center">
+        <h2>로그인</h2>
+    </div>
+    <div th:if="${param.error}">
+        <p class="error" th:text="${session.errorMessage}"></p>
+    </div>
+    <div th:if="${param.logout}">
+        <p class="info">로그아웃되었습니다.</p>
+    </div>
+    <form th:action="@{/login-process}" method="post">
+        <div>
+            <label for="loginId">로그인 ID</label>
+            <input type="text" id="loginId" name="loginId"
+                   class="form-control" required>
+        </div>
+        <div>
+        <label for="password">비밀번호</label>
+        <input type="password" id="password" name="password"
+               class="form-control" required>
+        </div>
+        <hr class="my-4">
+        <div class="row">
+            <div class="col">
+                <button class="w-100 btn btn-primary btn-lg" type="submit">로그인
+                </button>
+            </div>
+            <div class="col">
+                <button class="w-100 btn btn-secondary btn-lg"
+                        onclick="location.href='items.html'"
+                        th:onclick="|location.href='@{/}'|"
+                        type="button">취소</button>
+            </div>
+        </div>
+    </form>
+
+    <div th:replace="fragments/footer :: footer" />
+
+</div> <!-- /container -->
+</body>
+</html>

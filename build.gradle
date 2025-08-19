@@ -51,7 +51,8 @@ dependencies {
 	//elasticsearch
 	/*implementation 'org.springframework.boot:spring-boot-starter-data-elasticsearch'*/
     //mongoDB
-    implementation "org.springframework.data:spring-data-mongodb:4.5.0"
+    //implementation "org.springframework.data:spring-data-mongodb:4.5.0"
+    implementation 'org.springframework.boot:spring-boot-starter-data-mongodb'
 
 	//Lombok
 	compileOnly 'org.projectlombok:lombok'

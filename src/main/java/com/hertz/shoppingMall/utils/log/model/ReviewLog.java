@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 
 @Getter
 @Setter
-@Document("review_products-logs")
+@Document("review_logs")
 public class ReviewLog {
     @Id
     private String id;

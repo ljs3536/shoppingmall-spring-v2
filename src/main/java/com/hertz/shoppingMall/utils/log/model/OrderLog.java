@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 
 @Getter
 @Setter
-@Document("order_products-logs")
+@Document("order_logs")
 public class OrderLog {
     @Id
     private String id;

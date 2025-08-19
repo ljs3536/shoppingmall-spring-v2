@@ -10,7 +10,7 @@ import java.time.Instant;
 
 @Getter
 @Setter
-@Document(collection = "access-logs")
+@Document(collection = "access_logs")
 public class AccessLog {
 
     @Id

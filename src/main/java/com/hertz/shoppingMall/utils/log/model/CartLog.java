@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 
 @Getter
 @Setter
-@Document("cart_products-logs")
+@Document("cart_logs")
 public class CartLog {
     @Id
     private String id;

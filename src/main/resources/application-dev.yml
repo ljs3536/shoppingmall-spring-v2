@@ -24,8 +24,12 @@ spring:
     redis:
       host: my-redis-master  # Helm으로 올렸을 때 서비스 이름 (예: my-redis-master)
       port: 6379
-  elasticsearch:
-    uris: ${ELASTICSEARCH_URI:http://localhost:9200}
+  data:
+    mongodb:
+      uri: mongodb://root:rootpass@localhost:27017/smartmall?authSource=admin
+  jackson:
+    serialization:
+      write-dates-as-timestamps: false
   kafka:
     bootstrap-servers: kafka-controller-0.kafka-controller-headless.default.svc.cluster.local:9092,
                        kafka-controller-1.kafka-controller-headless.default.svc.cluster.local:9092,
